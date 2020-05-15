@@ -121,7 +121,9 @@ class Camera:
         cs=self.cs
         clk=self.clk
         miso=self.miso
-        write(self,[1,0,0,1,0,0,1,1],[1,0,0,0,0,0,1,1])
+        reset=self.reset
+        
+        self.write([1,0,0,1,0,0,1,1],[1,0,0,0,0,0,1,1])
         time.sleep(1)
         pixel_burst=[0,1,0,0,0,0,0,0]
         GPIO.output(cs, GPIO.LOW)
@@ -160,7 +162,7 @@ class Camera:
         no_pixels=0
         pixels=[]
         while no_pixels < 900:
-            pixels.append(read_continous())
+            pixels.append(self.read_continous())
             no_pixels = no_pixels+1
 
         GPIO.output(reset, GPIO.HIGH)
@@ -171,7 +173,7 @@ class Camera:
         return pixels
             
     def capture_and_save (self):
-        data= capture_frame(self)
+        data= self.capture_frame()
         pix_values=[]
         image=[]
         for each in data:

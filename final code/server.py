@@ -31,6 +31,5 @@ while True:
     print(image)
     d=np.array(image)
     plt.gray()
-    plt.show(d)
     plt.imsave("transfer3.jpg",d)
     clientsocket.close()
