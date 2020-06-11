@@ -73,7 +73,7 @@ by reading the Pixel_Burst register. Output image pixel order will be as in the 
 Image which is captured using above method is shown below.
 
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/images%20by%20ADNS%203080/focus22.png width="100%" height="100%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/images%20by%20ADNS%203080/focus22.png width="20%" height="20%">
 </p>
 
 As you can see using this ADNS 3080 module a clear finger print image of thumb cannot be captured because of the low resolution so camera module with  suitable focal lenght
