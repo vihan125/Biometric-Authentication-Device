@@ -1,3 +1,5 @@
+#include "wsq.h"
+#include <stdio.h>
 /************************************************************************/
 /*              Routines used to generate the "trees" used              */
 /*              in creating the wavelet subbands (w_tree)               */
@@ -127,3 +129,297 @@ void build_q_tree(
    return;
 }
 
+/***************************************************************/
+/* Gives location and size of subband splits for build_w_tree. */
+/***************************************************************/
+void w_tree4(
+   W_TREE w_tree[],    /* wavelet tree structure                      */
+   const int start1,   /* w_tree locations to start calculating       */
+   const int start2,   /*    subband split locations and sizes        */
+   const int lenx,     /* (temp) subband split location and sizes     */
+   const int leny,
+   const int x,
+   const int y,
+   const int stop1)    /* 0 normal operation, 1 used to avoid marking */
+                       /*    size and location of subbands 60-63      */
+{
+   int evenx, eveny;   /* Check length of subband for even or odd */
+   int p1, p2;         /* w_tree locations for storing subband sizes and
+                          locations */
+
+   p1 = start1;
+   p2 = start2;
+
+   evenx = lenx % 2;
+   eveny = leny % 2;
+
+   w_tree[p1].x = x;
+   w_tree[p1].y = y;
+   w_tree[p1].lenx = lenx;
+   w_tree[p1].leny = leny;
+
+   w_tree[p2].x = x;
+   w_tree[p2+2].x = x;
+   w_tree[p2].y = y;
+   w_tree[p2+1].y = y;
+
+   if(evenx == 0) {
+      w_tree[p2].lenx = lenx / 2;
+      w_tree[p2+1].lenx = w_tree[p2].lenx;
+   }
+   else {
+      if(p1 == 4) {
+         w_tree[p2].lenx = (lenx - 1) / 2;
+         w_tree[p2+1].lenx = w_tree[p2].lenx + 1;
+      }
+      else {
+         w_tree[p2].lenx = (lenx + 1) / 2;
+         w_tree[p2+1].lenx = w_tree[p2].lenx - 1;
+      }
+   }
+   w_tree[p2+1].x = w_tree[p2].lenx + x;
+   if(stop1 == 0) {
+      w_tree[p2+3].lenx = w_tree[p2+1].lenx;
+      w_tree[p2+3].x = w_tree[p2+1].x;
+   }
+   w_tree[p2+2].lenx = w_tree[p2].lenx;
+
+
+   if(eveny == 0) {
+      w_tree[p2].leny = leny / 2;
+      w_tree[p2+2].leny = w_tree[p2].leny;
+   }
+   else {
+      if(p1 == 5) {
+         w_tree[p2].leny = (leny - 1) / 2;
+         w_tree[p2+2].leny = w_tree[p2].leny + 1;
+      }
+      else {
+         w_tree[p2].leny = (leny + 1) / 2;
+         w_tree[p2+2].leny = w_tree[p2].leny - 1;
+      }
+   }
+   w_tree[p2+2].y = w_tree[p2].leny + y;
+   if(stop1 == 0) {
+      w_tree[p2+3].leny = w_tree[p2+2].leny;
+      w_tree[p2+3].y = w_tree[p2+2].y;
+   }
+   w_tree[p2+1].leny = w_tree[p2].leny;
+}
+
+
+
+/*****************************************************************/
+void q_tree16(
+   Q_TREE *q_tree,   /* quantization tree structure */
+   const int start,  /* q_tree location of first subband        */
+                     /*   in the subband group being calculated */
+   const int lenx,   /* (temp) subband location and sizes */
+   const int leny,
+   const int x,
+   const int y,
+   const int rw,  /* NEW */   /* spectral invert 1st row/col splits */
+   const int cl)  /* NEW */
+{
+   int tempx, temp2x;   /* temporary x values */
+   int tempy, temp2y;   /* temporary y values */
+   int evenx, eveny;    /* Check length of subband for even or odd */
+   int p;               /* indicates subband information being stored */
+
+   p = start;
+   evenx = lenx % 2;
+   eveny = leny % 2;
+
+   if(evenx == 0) {
+      tempx = lenx / 2;
+      temp2x = tempx;
+   }
+   else {
+      if(cl) {
+         temp2x = (lenx + 1) / 2;
+         tempx = temp2x - 1;
+      }
+      else  {
+        tempx = (lenx + 1) / 2;
+        temp2x = tempx - 1;
+      }
+   }
+
+   if(eveny == 0) {
+      tempy = leny / 2;
+      temp2y = tempy;
+   }
+   else {
+      if(rw) {
+         temp2y = (leny + 1) / 2;
+         tempy = temp2y - 1;
+      }
+      else {
+        tempy = (leny + 1) / 2;
+        temp2y = tempy - 1;
+      }
+   }
+
+   evenx = tempx % 2;
+   eveny = tempy % 2;
+
+   q_tree[p].x = x;
+   q_tree[p+2].x = x;
+   q_tree[p].y = y;
+   q_tree[p+1].y = y;
+   if(evenx == 0) {
+      q_tree[p].lenx = tempx / 2;
+      q_tree[p+1].lenx = q_tree[p].lenx;
+      q_tree[p+2].lenx = q_tree[p].lenx;
+      q_tree[p+3].lenx = q_tree[p].lenx;
+   }
+   else {
+      q_tree[p].lenx = (tempx + 1) / 2;
+      q_tree[p+1].lenx = q_tree[p].lenx - 1;
+      q_tree[p+2].lenx = q_tree[p].lenx;
+      q_tree[p+3].lenx = q_tree[p+1].lenx;
+   }
+   q_tree[p+1].x = x + q_tree[p].lenx;
+   q_tree[p+3].x = q_tree[p+1].x;
+   if(eveny == 0) {
+      q_tree[p].leny = tempy / 2;
+      q_tree[p+1].leny = q_tree[p].leny;
+      q_tree[p+2].leny = q_tree[p].leny;
+      q_tree[p+3].leny = q_tree[p].leny;
+   }
+   else {
+      q_tree[p].leny = (tempy + 1) / 2;
+      q_tree[p+1].leny = q_tree[p].leny;
+      q_tree[p+2].leny = q_tree[p].leny - 1;
+      q_tree[p+3].leny = q_tree[p+2].leny;
+   }
+   q_tree[p+2].y = y + q_tree[p].leny;
+   q_tree[p+3].y = q_tree[p+2].y;
+
+
+   evenx = temp2x % 2;
+
+   q_tree[p+4].x = x + tempx;
+   q_tree[p+6].x = q_tree[p+4].x;
+   q_tree[p+4].y = y;
+   q_tree[p+5].y = y;
+   q_tree[p+6].y = q_tree[p+2].y;
+   q_tree[p+7].y = q_tree[p+2].y;
+   q_tree[p+4].leny = q_tree[p].leny;
+   q_tree[p+5].leny = q_tree[p].leny;
+   q_tree[p+6].leny = q_tree[p+2].leny;
+   q_tree[p+7].leny = q_tree[p+2].leny;
+   if(evenx == 0) {
+      q_tree[p+4].lenx = temp2x / 2;
+      q_tree[p+5].lenx = q_tree[p+4].lenx;
+      q_tree[p+6].lenx = q_tree[p+4].lenx;
+      q_tree[p+7].lenx = q_tree[p+4].lenx;
+   }
+   else {
+      q_tree[p+5].lenx = (temp2x + 1) / 2;
+      q_tree[p+4].lenx = q_tree[p+5].lenx - 1;
+      q_tree[p+6].lenx = q_tree[p+4].lenx;
+      q_tree[p+7].lenx = q_tree[p+5].lenx;
+   }
+   q_tree[p+5].x = q_tree[p+4].x + q_tree[p+4].lenx;
+   q_tree[p+7].x = q_tree[p+5].x;
+
+
+   eveny = temp2y % 2;
+
+   q_tree[p+8].x = x;
+   q_tree[p+9].x = q_tree[p+1].x;
+   q_tree[p+10].x = x;
+   q_tree[p+11].x = q_tree[p+1].x;
+   q_tree[p+8].y = y + tempy;
+   q_tree[p+9].y = q_tree[p+8].y;
+   q_tree[p+8].lenx = q_tree[p].lenx;
+   q_tree[p+9].lenx = q_tree[p+1].lenx;
+   q_tree[p+10].lenx = q_tree[p].lenx;
+   q_tree[p+11].lenx = q_tree[p+1].lenx;
+   if(eveny == 0) {
+      q_tree[p+8].leny = temp2y / 2;
+      q_tree[p+9].leny = q_tree[p+8].leny;
+      q_tree[p+10].leny = q_tree[p+8].leny;
+      q_tree[p+11].leny = q_tree[p+8].leny;
+   }
+   else {
+      q_tree[p+10].leny = (temp2y + 1) / 2;
+      q_tree[p+11].leny = q_tree[p+10].leny;
+      q_tree[p+8].leny = q_tree[p+10].leny - 1;
+      q_tree[p+9].leny = q_tree[p+8].leny;
+   }
+   q_tree[p+10].y = q_tree[p+8].y + q_tree[p+8].leny;
+   q_tree[p+11].y = q_tree[p+10].y;
+
+
+   q_tree[p+12].x = q_tree[p+4].x;
+   q_tree[p+13].x = q_tree[p+5].x;
+   q_tree[p+14].x = q_tree[p+4].x;
+   q_tree[p+15].x = q_tree[p+5].x;
+   q_tree[p+12].y = q_tree[p+8].y;
+   q_tree[p+13].y = q_tree[p+8].y;
+   q_tree[p+14].y = q_tree[p+10].y;
+   q_tree[p+15].y = q_tree[p+10].y;
+   q_tree[p+12].lenx = q_tree[p+4].lenx;
+   q_tree[p+13].lenx = q_tree[p+5].lenx;
+   q_tree[p+14].lenx = q_tree[p+4].lenx;
+   q_tree[p+15].lenx = q_tree[p+5].lenx;
+   q_tree[p+12].leny = q_tree[p+8].leny;
+   q_tree[p+13].leny = q_tree[p+8].leny;
+   q_tree[p+14].leny = q_tree[p+10].leny;
+   q_tree[p+15].leny = q_tree[p+10].leny;
+}
+
+/********************************************************************/
+void q_tree4(
+   Q_TREE *q_tree,   /* quantization tree structure */
+   const int start,  /* q_tree location of first subband         */
+                     /*    in the subband group being calculated */
+   const int lenx,   /* (temp) subband location and sizes */
+   const int leny,
+   const int x,
+   const int  y)
+{
+   int evenx, eveny;    /* Check length of subband for even or odd */
+   int p;               /* indicates subband information being stored */
+
+
+   p = start;
+   evenx = lenx % 2;
+   eveny = leny % 2;
+
+
+   q_tree[p].x = x;
+   q_tree[p+2].x = x;
+   q_tree[p].y = y;
+   q_tree[p+1].y = y;
+   if(evenx == 0) {
+      q_tree[p].lenx = lenx / 2;
+      q_tree[p+1].lenx = q_tree[p].lenx;
+      q_tree[p+2].lenx = q_tree[p].lenx;
+      q_tree[p+3].lenx = q_tree[p].lenx;
+   }
+   else {
+      q_tree[p].lenx = (lenx + 1) / 2;
+      q_tree[p+1].lenx = q_tree[p].lenx - 1;
+      q_tree[p+2].lenx = q_tree[p].lenx;
+      q_tree[p+3].lenx = q_tree[p+1].lenx;
+   }
+   q_tree[p+1].x = x + q_tree[p].lenx;
+   q_tree[p+3].x = q_tree[p+1].x;
+   if(eveny == 0) {
+      q_tree[p].leny = leny / 2;
+      q_tree[p+1].leny = q_tree[p].leny;
+      q_tree[p+2].leny = q_tree[p].leny;
+      q_tree[p+3].leny = q_tree[p].leny;
+   }
+   else {
+      q_tree[p].leny = (leny + 1) / 2;
+      q_tree[p+1].leny = q_tree[p].leny;
+      q_tree[p+2].leny = q_tree[p].leny - 1;
+      q_tree[p+3].leny = q_tree[p+2].leny;
+   }
+   q_tree[p+2].y = y + q_tree[p].leny;
+   q_tree[p+3].y = q_tree[p+2].y;
+}

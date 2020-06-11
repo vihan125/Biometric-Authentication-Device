@@ -68,6 +68,7 @@ of the software.
 ***********************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "wsq.h"
 #include "dataio.h"
 

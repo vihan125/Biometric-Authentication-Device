@@ -1,4 +1,9 @@
-#### to do : include header files with definitions ####
+#include "wsq.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "dataio.h"
 
 /* This routine converts the unsigned char data to float.  In the */
 /* process it shifts and scales the data so the values range from */
@@ -383,6 +388,222 @@ void quant_block_sizes(int *oqsize1, int *oqsize2, int *oqsize3,
    *oqsize3 = qsize3;
 }
 
+
+
+/************************************************************/
+/************************************************************/
+void get_lets(
+   float *new,     /* image pointers for creating subband splits */
+   float *old,
+   const int len1,       /* temporary length parameters */
+   const int len2,
+   const int pitch,      /* pitch gives next row_col to filter */
+   const int  stride,    /*           stride gives next pixel to filter */
+   float *hi,
+   const int hsz,   /* NEW */
+   float *lo,      /* filter coefficients */
+   const int lsz,   /* NEW */
+   const int inv)        /* spectral inversion? */
+{
+   float *lopass, *hipass;	/* pointers of where to put lopass
+                                   and hipass filter outputs */
+   float *p0,*p1;		/* pointers to image pixels used */
+   int pix, rw_cl;		/* pixel counter and row/column counter */
+   int i, da_ev;		/* even or odd row/column of pixels */
+   int fi_ev;
+   int loc, hoc, nstr, pstr;
+   int llen, hlen;
+   int lpxstr, lspxstr;
+   float *lpx, *lspx;
+   int hpxstr, hspxstr;
+   float *hpx, *hspx;
+   int olle, ohle;
+   int olre, ohre;
+   int lle, lle2;
+   int lre, lre2;
+   int hle, hle2;
+   int hre, hre2;
+
+
+   da_ev = len2 % 2;
+   fi_ev = lsz % 2;
+
+   if(fi_ev) {
+      loc = (lsz-1)/2;
+      hoc = (hsz-1)/2 - 1;
+      olle = 0;
+      ohle = 0;
+      olre = 0;
+      ohre = 0;
+   }
+   else {
+      loc = lsz/2 - 2;
+      hoc = hsz/2 - 2;
+      olle = 1;
+      ohle = 1;
+      olre = 1;
+      ohre = 1;
+
+      if(loc == -1) {
+         loc = 0;
+         olle = 0;
+      }
+      if(hoc == -1) {
+         hoc = 0;
+         ohle = 0;
+      }
+
+      for(i = 0; i < hsz; i++)
+         hi[i] *= -1.0;
+   }
+
+   pstr = stride;
+   nstr = -pstr;
+
+   if(da_ev) {
+      llen = (len2+1)/2;
+      hlen = llen - 1;
+   }
+   else {
+      llen = len2/2;
+      hlen = llen;
+   }
+
+
+   for(rw_cl = 0; rw_cl < len1; rw_cl++) {
+
+      if(inv) {
+         hipass = new + rw_cl * pitch;
+         lopass = hipass + hlen * stride;
+      }
+      else {
+         lopass = new + rw_cl * pitch;
+         hipass = lopass + llen * stride;
+      }
+
+      p0 = old + rw_cl * pitch;
+      p1 = p0 + (len2-1) * stride;
+
+      lspx = p0 + (loc * stride);
+      lspxstr = nstr;
+      lle2 = olle;
+      lre2 = olre;
+      hspx = p0 + (hoc * stride);
+      hspxstr = nstr;
+      hle2 = ohle;
+      hre2 = ohre;
+      for(pix = 0; pix < hlen; pix++) {
+         lpxstr = lspxstr;
+         lpx = lspx;
+         lle = lle2;
+         lre = lre2;
+         *lopass = *lpx * lo[0];
+         for(i = 1; i < lsz; i++) {
+            if(lpx == p0){
+               if(lle) {
+                  lpxstr = 0;
+                  lle = 0;
+               }
+               else
+                  lpxstr = pstr;
+            }
+            if(lpx == p1){
+               if(lre) {
+                  lpxstr = 0;
+                  lre = 0;
+               }
+               else
+                  lpxstr = nstr;
+            }
+            lpx += lpxstr;
+            *lopass += *lpx * lo[i];
+         }
+         lopass += stride;
+
+         hpxstr = hspxstr;
+         hpx = hspx;
+         hle = hle2;
+         hre = hre2;
+         *hipass = *hpx * hi[0];
+         for(i = 1; i < hsz; i++) {
+            if(hpx == p0){
+               if(hle) {
+                  hpxstr = 0;
+                  hle = 0;
+               }
+               else
+                  hpxstr = pstr;
+            }
+            if(hpx == p1){
+               if(hre) {
+                  hpxstr = 0;
+                  hre = 0;
+               }
+               else
+                  hpxstr = nstr;
+            }
+            hpx += hpxstr;
+            *hipass += *hpx * hi[i];
+         }
+         hipass += stride;
+
+         for(i = 0; i < 2; i++) {
+            if(lspx == p0){
+               if(lle2) {
+                  lspxstr = 0;
+                  lle2 = 0;
+               }
+               else
+                  lspxstr = pstr;
+            }
+            lspx += lspxstr;
+            if(hspx == p0){
+               if(hle2) {
+                  hspxstr = 0;
+                  hle2 = 0;
+               }
+               else
+                  hspxstr = pstr;
+            }
+            hspx += hspxstr;
+         }
+      }
+      if(da_ev) {
+         lpxstr = lspxstr;
+         lpx = lspx;
+         lle = lle2;
+         lre = lre2;
+         *lopass = *lpx * lo[0];
+         for(i = 1; i < lsz; i++) {
+            if(lpx == p0){
+               if(lle) {
+                  lpxstr = 0;
+                  lle = 0;
+               }
+               else
+                  lpxstr = pstr;
+            }
+            if(lpx == p1){
+               if(lre) {
+                  lpxstr = 0;
+                  lre = 0;
+               }
+               else
+                  lpxstr = nstr;
+            }
+            lpx += lpxstr;
+            *lopass += *lpx * lo[i];
+         }
+         lopass += stride;
+      }
+   }
+   if(!fi_ev) {
+      for(i = 0; i < hsz; i++)
+         hi[i] *= -1.0;
+   }
+}
+
+
 /************************************************************************/
 /* WSQ decompose the image.  NOTE: this routine modifies and returns    */
 /* the results in "fdata".                                              */
@@ -413,4 +634,548 @@ int wsq_decompose(float *fdata, const int width, const int height,
    free(fdata1);
 
    return(0);
+}
+
+
+/********************************functions for decoder *********************************************************/
+
+/*********************************************************/
+/* Routine to convert image from float to unsigned char. */
+/*********************************************************/
+void conv_img_2_uchar(
+   unsigned char *data,                   /* uchar image pointer    */
+   float *img,                    /* image pointer          */
+   const int width,               /* image width            */
+   const int height,              /* image height           */
+   const float m_shift,           /* shifting parameter     */
+   const float r_scale)           /* scaling parameter      */
+{
+   int r, c;       /* row/column counters */
+   float img_tmp;  /* temp image data store */
+
+   for (r = 0; r < height; r++) {
+      for (c = 0; c < width; c++) {
+         img_tmp = (*img * r_scale) + m_shift;
+         img_tmp += 0.5;
+         if (img_tmp < 0.0)
+            *data = 0; /* neg pix poss after quantization */
+         else if (img_tmp > 255.0)
+            *data = 255;
+         else
+            *data = (unsigned char)img_tmp;
+
+         ++img;
+         ++data;
+      }
+   }
+}
+
+/*************************************/
+/* Routine to unquantize image data. */
+/*************************************/
+int unquantize(
+   float **ofip,         /* floating point image pointer         */
+   const DQT_TABLE *dqt_table, /* quantization table structure   */
+   Q_TREE q_tree[],      /* quantization table structure         */
+   const int q_treelen,  /* size of q_tree                       */
+   short *sip,           /* quantized image pointer              */
+   const int width,      /* image width                          */
+   const int height)     /* image height                         */
+{
+   float *fip;    /* floating point image */
+   int row, col;  /* cover counter and row/column counters */
+   float C;       /* quantizer bin center */
+   float *fptr;   /* image pointers */
+   short *sptr;
+   int cnt;       /* subband counter */
+
+   if((fip = (float *) calloc(width*height, sizeof(float))) == NULL) {
+      fprintf(stderr,"ERROR : unquantize : calloc : fip\n");
+      return(-91);
+   }
+   if(dqt_table->dqt_def != 1) {
+      fprintf(stderr,
+      "ERROR: unquantize : quantization table parameters not defined!\n");
+      return(-92);
+   }
+
+   sptr = sip;
+   C = dqt_table->bin_center;
+   for(cnt = 0; cnt < NUM_SUBBANDS; cnt++) {
+      if(dqt_table->q_bin[cnt] == 0.0)
+         continue;
+      fptr = fip + (q_tree[cnt].y * width) + q_tree[cnt].x;
+
+      for(row = 0;
+          row < q_tree[cnt].leny;
+          row++, fptr += width - q_tree[cnt].lenx){
+         for(col = 0; col < q_tree[cnt].lenx; col++) {
+            if(*sptr == 0)
+               *fptr = 0.0;
+            else if(*sptr > 0)
+               *fptr = (dqt_table->q_bin[cnt] * ((float)*sptr - C))
+                    + (dqt_table->z_bin[cnt] / 2.0);
+            else if(*sptr < 0)
+               *fptr = (dqt_table->q_bin[cnt] * ((float)*sptr + C))
+                    - (dqt_table->z_bin[cnt] / 2.0);
+            else {
+               fprintf(stderr,
+               "ERROR : unquantize : invalid quantization pixel value\n");
+               return(-93);
+            }
+            fptr++;
+            sptr++;
+         }
+      }
+   }
+
+   *ofip = fip;
+   return(0);
+}
+
+/****************************************************************/
+void  join_lets(
+   float *new,    /* image pointers for creating subband splits */
+   float *old,
+   const int len1,       /* temporary length parameters */
+   const int len2,
+   const int pitch,      /* pitch gives next row_col to filter */
+   const int  stride,    /*           stride gives next pixel to filter */
+   float *hi,
+   const int hsz,   /* NEW */
+   float *lo,      /* filter coefficients */
+   const int lsz,   /* NEW */
+   const int inv)        /* spectral inversion? */
+{
+   float *lp0, *lp1;
+   float *hp0, *hp1;
+   float *lopass, *hipass;	/* lo/hi pass image pointers */
+   float *limg, *himg;
+   int pix, cl_rw;		/* pixel counter and column/row counter */
+   int i, da_ev;			/* if "scanline" is even or odd and */
+   int loc, hoc;
+   int hlen, llen;
+   int nstr, pstr;
+   int tap;
+   int fi_ev;
+   int olle, ohle, olre, ohre;
+   int lle, lle2, lre, lre2;
+   int hle, hle2, hre, hre2;
+   float *lpx, *lspx;
+   int lpxstr, lspxstr;
+   int lstap, lotap;
+   float *hpx, *hspx;
+   int hpxstr, hspxstr;
+   int hstap, hotap;
+   int asym, fhre = 0, ofhre;
+   float ssfac, osfac, sfac;
+
+   da_ev = len2 % 2;
+   fi_ev = lsz % 2;
+   pstr = stride;
+   nstr = -pstr;
+   if(da_ev) {
+      llen = (len2+1)/2;
+      hlen = llen - 1;
+   }
+   else {
+      llen = len2/2;
+      hlen = llen;
+   }
+
+   if(fi_ev) {
+      asym = 0;
+      ssfac = 1.0;
+      ofhre = 0;
+      loc = (lsz-1)/4;
+      hoc = (hsz+1)/4 - 1;
+      lotap = ((lsz-1)/2) % 2;
+      hotap = ((hsz+1)/2) % 2;
+      if(da_ev) {
+         olle = 0;
+         olre = 0;
+         ohle = 1;
+         ohre = 1;
+      }
+      else {
+         olle = 0;
+         olre = 1;
+         ohle = 1;
+         ohre = 0;
+      }
+   }
+   else {
+      asym = 1;
+      ssfac = -1.0;
+      ofhre = 2;
+      loc = lsz/4 - 1;
+      hoc = hsz/4 - 1;
+      lotap = (lsz/2) % 2;
+      hotap = (hsz/2) % 2;
+      if(da_ev) {
+         olle = 1;
+         olre = 0;
+         ohle = 1;
+         ohre = 1;
+      }
+      else {
+         olle = 1;
+         olre = 1;
+         ohle = 1;
+         ohre = 1;
+      }
+
+      if(loc == -1) {
+         loc = 0;
+         olle = 0;
+      }
+      if(hoc == -1) {
+         hoc = 0;
+         ohle = 0;
+      }
+
+      for(i = 0; i < hsz; i++)
+         hi[i] *= -1.0;
+   }
+
+
+   for (cl_rw = 0; cl_rw < len1; cl_rw++)  {
+      limg = new + cl_rw * pitch;
+      himg = limg;
+      *himg = 0.0;
+      *(himg + stride) = 0.0;
+      if(inv) {
+         hipass = old + cl_rw * pitch;
+         lopass = hipass + stride * hlen;
+      }
+      else {
+         lopass = old + cl_rw * pitch;
+         hipass = lopass + stride * llen;
+      }
+
+
+      lp0 = lopass;
+      lp1 = lp0 + (llen-1) * stride;
+      lspx = lp0 + (loc * stride);
+      lspxstr = nstr;
+      lstap = lotap;
+      lle2 = olle;
+      lre2 = olre;
+
+      hp0 = hipass;
+      hp1 = hp0 + (hlen-1) * stride;
+      hspx = hp0 + (hoc * stride);
+      hspxstr = nstr;
+      hstap = hotap;
+      hle2 = ohle;
+      hre2 = ohre;
+      osfac = ssfac;
+
+      for(pix = 0; pix < hlen; pix++) {
+         for(tap = lstap; tap >=0; tap--) {
+            lle = lle2;
+            lre = lre2;
+            lpx = lspx;
+            lpxstr = lspxstr;
+
+            *limg = *lpx * lo[tap];
+            for(i = tap+2; i < lsz; i += 2) {
+               if(lpx == lp0){
+                  if(lle) {
+                     lpxstr = 0;
+                     lle = 0;
+                  }
+                  else
+                     lpxstr = pstr;
+               }
+               if(lpx == lp1) {
+                  if(lre) {
+                     lpxstr = 0;
+                     lre = 0;
+                  }
+                  else
+                     lpxstr = nstr;
+               }
+               lpx += lpxstr;
+               *limg += *lpx * lo[i];
+            }
+            limg += stride;
+         }
+         if(lspx == lp0){
+            if(lle2) {
+               lspxstr = 0;
+               lle2 = 0;
+            }
+            else
+               lspxstr = pstr;
+         }
+         lspx += lspxstr;
+         lstap = 1;
+
+         for(tap = hstap; tap >=0; tap--) {
+            hle = hle2;
+            hre = hre2;
+            hpx = hspx;
+            hpxstr = hspxstr;
+            fhre = ofhre;
+            sfac = osfac;
+
+            for(i = tap; i < hsz; i += 2) {
+               if(hpx == hp0) {
+                  if(hle) {
+                     hpxstr = 0;
+                     hle = 0;
+                  }
+                  else {
+                     hpxstr = pstr;
+                     sfac = 1.0;
+                  }
+               }
+               if(hpx == hp1) {
+                  if(hre) {
+                     hpxstr = 0;
+                     hre = 0;
+                     if(asym && da_ev) {
+                        hre = 1;
+                        fhre--;
+                        sfac = (float)fhre;
+                        if(sfac == 0.0)
+                           hre = 0;
+                     }
+                  }
+                  else {
+                     hpxstr = nstr;
+                     if(asym)
+                        sfac = -1.0;
+                  }
+               }
+               *himg += *hpx * hi[i] * sfac;
+               hpx += hpxstr;
+            }
+            himg += stride;
+         }
+         if(hspx == hp0) {
+            if(hle2) {
+               hspxstr = 0;
+               hle2 = 0;
+            }
+            else {
+               hspxstr = pstr;
+               osfac = 1.0;
+            }
+         }
+         hspx += hspxstr;
+         hstap = 1;
+      }
+
+
+      if(da_ev)
+         if(lotap)
+            lstap = 1;
+         else
+            lstap = 0;
+      else
+         if(lotap)
+            lstap = 2;
+         else
+            lstap = 1;
+
+      for(tap = 1; tap >= lstap; tap--) {
+         lle = lle2;
+         lre = lre2;
+         lpx = lspx;
+         lpxstr = lspxstr;
+
+         *limg = *lpx * lo[tap];
+         for(i = tap+2; i < lsz; i += 2) {
+            if(lpx == lp0){
+               if(lle) {
+                  lpxstr = 0;
+                  lle = 0;
+               }
+               else
+                  lpxstr = pstr;
+            }
+            if(lpx == lp1) {
+               if(lre) {
+                  lpxstr = 0;
+                  lre = 0;
+               }
+               else
+                  lpxstr = nstr;
+            }
+            lpx += lpxstr;
+            *limg += *lpx * lo[i];
+         }
+         limg += stride;
+      }
+
+
+      if(da_ev) {
+         if(hotap)
+            hstap = 1;
+         else
+            hstap = 0;
+
+         if(hsz == 2) {
+            hspx -= hspxstr;
+            fhre = 1;
+         }
+      }
+      else
+         if(hotap)
+            hstap = 2;
+         else
+            hstap = 1;
+
+
+      for(tap = 1; tap >= hstap; tap--) {
+         hle = hle2;
+         hre = hre2;
+         hpx = hspx;
+         hpxstr = hspxstr;
+         sfac = osfac;
+         if(hsz != 2)
+            fhre = ofhre;
+
+         for(i = tap; i < hsz; i += 2) {
+            if(hpx == hp0) {
+               if(hle) {
+                  hpxstr = 0;
+                  hle = 0;
+               }
+               else {
+                  hpxstr = pstr;
+                  sfac = 1.0;
+               }
+            }
+            if(hpx == hp1) {
+               if(hre) {
+                  hpxstr = 0;
+                  hre = 0;
+                  if(asym && da_ev) {
+                     hre = 1;
+                     fhre--;
+                     sfac = (float)fhre;
+                     if(sfac == 0.0)
+                        hre = 0;
+                  }
+               }
+               else {
+                  hpxstr = nstr;
+                  if(asym)
+                     sfac = -1.0;
+               }
+            }
+            *himg += *hpx * hi[i] * sfac;
+            hpx += hpxstr;
+         }
+         himg += stride;
+      }
+   }
+
+   if(!fi_ev)
+      for(i = 0; i < hsz; i++)
+         hi[i] *= -1.0;
+}
+
+/************************************************************************/
+/* WSQ reconstructs the image.  NOTE: this routine modifies and returns */
+/* the results in "fdata".                                              */
+/************************************************************************/
+int wsq_reconstruct(float *fdata, const int width, const int height,
+                  W_TREE w_tree[], const int w_treelen,
+                  const DTT_TABLE *dtt_table)
+{
+   int num_pix, node;
+   float *fdata1, *fdata_bse;
+
+   if(dtt_table->lodef != 1) {
+      fprintf(stderr,
+      "ERROR: wsq_reconstruct : Lopass filter coefficients not defined\n");
+      return(-95);
+   }
+   if(dtt_table->hidef != 1) {
+      fprintf(stderr,
+      "ERROR: wsq_reconstruct : Hipass filter coefficients not defined\n");
+      return(-96);
+   }
+
+   num_pix = width * height;
+   /* Allocate temporary floating point pixmap. */
+   if((fdata1 = (float *) malloc(num_pix*sizeof(float))) == NULL) {
+      fprintf(stderr,"ERROR : wsq_reconstruct : malloc : fdata1\n");
+      return(-97);
+   }
+
+   /* Reconstruct floating point pixmap from wavelet subband data. */
+   for (node = w_treelen - 1; node >= 0; node--) {
+      fdata_bse = fdata + (w_tree[node].y * width) + w_tree[node].x;
+      join_lets(fdata1, fdata_bse, w_tree[node].lenx, w_tree[node].leny,
+                  1, width,
+                  dtt_table->hifilt, dtt_table->hisz,
+                  dtt_table->lofilt, dtt_table->losz,
+                  w_tree[node].inv_cl);
+      join_lets(fdata_bse, fdata1, w_tree[node].leny, w_tree[node].lenx,
+                  width, 1,
+                  dtt_table->hifilt, dtt_table->hisz,
+                  dtt_table->lofilt, dtt_table->losz,
+                  w_tree[node].inv_rw);
+   }
+   free(fdata1);
+
+   return(0);
+}
+
+
+/*************************************************************/
+/* Added by MDG on 02-24-05                                  */
+/* Initializes memory used by the WSQ decoder.               */
+/*************************************************************/
+void init_wsq_decoder_resources()
+{
+   /* Added 02-24-05 by MDG                      */
+   /* Init dymanically allocated members to NULL */
+   /* for proper memory management in:           */
+   /*    read_transform_table()                  */
+   /*    getc_transform_table()                  */
+   /*    free_wsq_resources()                    */
+   dtt_table.lofilt = (float *)NULL;
+   dtt_table.hifilt = (float *)NULL;
+}
+
+/*************************************************************/
+/* Added by MDG on 02-24-05                                  */
+/* Deallocates memory used by the WSQ decoder.               */
+/*************************************************************/
+void free_wsq_decoder_resources()
+{
+   if(dtt_table.lofilt != (float *)NULL){
+      free(dtt_table.lofilt);
+      dtt_table.lofilt = (float *)NULL;
+   }
+
+   if(dtt_table.hifilt != (float *)NULL){
+      free(dtt_table.hifilt);
+      dtt_table.hifilt = (float *)NULL;
+   }
+}
+
+
+/*****************************************************/
+/* Routine to execute an integer  sign determination */
+/*****************************************************/
+
+int int_sign(
+   const int power)  /* "sign" power */
+{
+   int cnt, num = -1;   /* counter and sign return value */
+
+   if(power == 0)
+      return 1;
+
+   for(cnt = 1; cnt < power; cnt++)
+      num *= -1;
+
+   return num;
 }
