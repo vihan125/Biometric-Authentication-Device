@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "wsq.h"
 
-int debug= 1;
+int debug= 0;
 
 int main(void) {
 
@@ -165,7 +165,7 @@ int main(void) {
         printf("%x\n",odata[j]);
         }*/
     };
-    printf("******************************************** Reconstructing encoded image ***************************************\n\n ");
+   printf("******************************************** Reconstructing encoded image ***************************************\n\n ");
     unsigned char* odata2;
     int olen2;
     int ow ;
@@ -174,11 +174,17 @@ int main(void) {
     int ppi;
     int lossyflag;
 
+
     if(!wsq_decode_mem(&odata2,&ow,&oh,&od,&ppi,&lossyflag,odata,olen)){
         printf("decoded !!");
     }
 
-
+    FILE * filePointer;
+    filePointer=fopen("result.txt","w");
+    for(int r=0;r<262144;r++){
+        fprintf(filePointer,"%d\n",odata2[r]);
+    }
+    fclose(filePointer);
 
  return 0;
 

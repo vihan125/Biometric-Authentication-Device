@@ -146,6 +146,7 @@ int wsq_decode_mem(unsigned char **odata, int *ow, int *oh, int *od, int *oppi,
    if(debug > 0)
       fprintf(stderr, "Doubleing point pixels converted to unsigned char\n\n");
 
+
    /* Assign reconstructed pixmap and attributes to output pointers. */
    *odata = cdata;
    *ow = width;
@@ -244,6 +245,7 @@ int huffman_decode_data_mem(
                             (dht_table+hufftable_id)->huffvalues,
                             cbufptr, ebufptr, &bit_count, &marker)))
          return(ret);
+
 
       if(nodeptr == -1) {
          while(marker == COM_WSQ && blk == 3) {
@@ -430,7 +432,9 @@ int getc_nextbits_wsq(
             return(ret);
          }
          if(code2 != 0x00 && bits_req == 1) {
-            *marker = (code << 8) | code2;
+        if(debug > 0)
+         fprintf(stderr, "Error code:%d\n",code);
+            *marker = (code << 8) | 0xa1;//code2 should be here
             *obits = 1;
             return(0);
          }

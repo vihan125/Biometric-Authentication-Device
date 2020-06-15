@@ -1,13 +1,16 @@
 # -*- MakeFile -*-
 
-lena:code.o encoder.o huff.o tableio.o tree.o util.o dataio.o nistcom.o globals.o decoder.o ppi.o computil.o 
-	gcc code.o encoder.o huff.o tableio.o tree.o util.o dataio.o nistcom.o globals.o decoder.o ppi.o computil.o  -o code 
+eye:eye.o encoder.o huff.o tableio.o tree.o util.o dataio.o nistcom.o globals.o decoder.o ppi.o computil.o 
+	gcc eye.o encoder.o huff.o tableio.o tree.o util.o dataio.o nistcom.o globals.o decoder.o ppi.o computil.o  -o eye 
 
 code.o:code.c wsq.h
 	gcc -c code.c
 
 lena.o:lena.c wsq.h 
 	gcc -c lena.c 
+
+eye.o:eye.c wsq.h
+	gcc -c eye.c 
 
 encoder.o:encoder.c wsq.h dataio.h
 	gcc -c encoder.c
