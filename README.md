@@ -85,4 +85,11 @@ The ISO/IEC standard for compressing fingerprint images is the WSQ format which 
 represented using wavelets and the co-efficients of those wavelets are quantized and stored. And when the image is needed again it is reconstructed using those co-efficients.
 This a lossy commpression technique so the reconstructed image will not be exactly same as the original image but the key features of the fingerprint will be preserved.   
 
+implementation of this whole software is available in: https://github.com/lessandro/nbis  
+
+Iwent through the source code and extract neccessary files and did neccesarry changes to build code that do only encoding and decoding process.
+New implementation is available here : https://github.com/vihan125/Biometric-Authentication-Device/tree/master/WSQ/new_encoder 
+
+to run the code run the make file in and execute the executable file, pixels data in hard coded at the present sitiuation, and the decoded pixel values are written to the 'results.txt' file.
+
 

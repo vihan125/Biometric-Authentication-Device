@@ -433,7 +433,6 @@ int getc_nextbits_wsq(
          }
          if(code2 != 0x00 && bits_req == 1) {
         if(debug > 0)
-         fprintf(stderr, "Error code:%d\n",code);
             *marker = (code << 8) | 0xa1;//code2 should be here
             *obits = 1;
             return(0);

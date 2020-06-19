@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "wsq.h"
 
-int debug= 1;
+int debug= 3;
 
 int main(void) {
 
