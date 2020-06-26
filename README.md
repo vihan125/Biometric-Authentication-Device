@@ -106,7 +106,7 @@ Reconstructed image
   <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/3.PNG width="80%" height="80%">
 </p>
 
-Note that the size of the reconstructed image is less because of the WSQ image compression is a lossy image compression method.
+Note that the size of the reconstructed image is less because the WSQ image compression is a lossy image compression method.
 
 ### It is important to note that WSQ image compression technique will not work with images with low resolution
 
@@ -117,6 +117,35 @@ For an example take a look at this compression of lena image with resolution 256
 
 
 ## OV7670 Camera module
+
+The OV7670 is a low cost image sensor + DSP that can operate at a maximum of 30 fps and 640 x 480 ("VGA") resolutions, equivalent to 0.3 Megapixels. The captured image can be pre-processed by the DSP before sending it out. 
+This preprocessing can be configured via the Serial Camera Control Bus (SCCB).  
+You can see the full datasheet here: https://github.com/vihan125/Biometric-Authentication-Device/tree/master/OV7670%20camera 
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/camera.jpg width="50%" height="50%">
+</p>
+
+### Pin layout and description
+
+OV7670 camera module consists of 18 pins,
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/pinout.PNG width="50%" height="50%">
+</p>
+
+Meaning and the functions of the pins 
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/pin_description.PNG width="50%" height="50%">
+</p>
+
+* You can safely supply 3.3V (3.0V - 3.6V) to the OV7670 VDD. (I used this configuration)
+* You can safely use a maximum of 3.0V for the I/O pins. However the module I/O pins will work at 2.8V.
+* A 5V supply for the OV7670 VDD might work (try at your own risk), it depends on the maximum input voltage of the LDO regulators your module has.
+* You can use 3.3V on the I/O pins, the internal I/O protection diodes will clamp the I/O voltage to 2.8V. However, this may degrade the OV7670 faster and/or cause more power loss. (I used this configuration)
+
+
 
 
 
