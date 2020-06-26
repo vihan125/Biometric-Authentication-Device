@@ -137,7 +137,7 @@ OV7670 camera module consists of 18 pins,
 Meaning and the functions of the pins 
 
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/pin_description.PNG width="30%" height="30%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/pin_description.PNG width="50%" height="50%">
 </p>
 
 ### Functional Block diagram
