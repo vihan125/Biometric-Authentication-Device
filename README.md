@@ -131,19 +131,63 @@ You can see the full datasheet here: https://github.com/vihan125/Biometric-Authe
 OV7670 camera module consists of 18 pins,
 
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/pinout.PNG width="50%" height="50%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/pinout.PNG width="20%" height="20%">
 </p>
 
 Meaning and the functions of the pins 
 
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/pin_description.PNG width="50%" height="50%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/pin_description.PNG width="30%" height="30%">
 </p>
+
+### Functional Block diagram
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/block%20diagram.PNG width="30%" height="30%">
+</p>
+
+As you can see there are two clock inputs as XCLK and SIO_C. 
+XCLK is the clock for the system operation and the SIO_c is the clock for the SCCB to communicate with registers. 
+
 
 * You can safely supply 3.3V (3.0V - 3.6V) to the OV7670 VDD. (I used this configuration)
 * You can safely use a maximum of 3.0V for the I/O pins. However the module I/O pins will work at 2.8V.
 * A 5V supply for the OV7670 VDD might work (try at your own risk), it depends on the maximum input voltage of the LDO regulators your module has.
 * You can use 3.3V on the I/O pins, the internal I/O protection diodes will clamp the I/O voltage to 2.8V. However, this may degrade the OV7670 faster and/or cause more power loss. (I used this configuration)
+
+### Capturing frames
+
+By default OV7670 camera module outfputs 640x480 frames at a rate of 30 fps, You can change these seetibgs by making neccessary changes in DSP through Serial Camera Control Bus (SCCB) which operates in a similar manner to I2c communication.
+However this SCCB is used only to make chnages in the settings of the module. 
+When capturing a frame pins that will be used are PCLK (pixel clock), XCLK(system clock), HREF(horizontal refernce), VSYNC(vertical synchronization) and d0-d7 pins which will give out a byte.
+
+* Lets see how to capture a Data related to a single row with 640 pixels.
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/clock_1.PNG width="100%" height="100%">
+</p>
+
+First thing to notice, the D0-D7 must be sampled at the rising edge of the PCLK signal. Number two, D0-D7 must be sampled only when HREF is high.
+Also, the rising edge of HREF signals the start of a line, and the falling edge of HREF signals the end of the line.
+
+All these bytes sampled when HREF was high, correspond to the pixels in one line.
+Note that one byte is not a pixel, it depends on the format chosen. By default, the format is YCbCr422, this means that in average two bytes correspond to a pixel.
+
+* Capturing a single frame with 640x480 pixels (307200)
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/clock_2.PNG width="100%" height="100%">
+</p>
+
+The image above shows the signals for a "VGA" (640 x 480) frame.
+During HSYNC high state, we must capture 640 pixels, equivalent to a line.
+The 480 lines, equivalent to a frame, are captured during the low state of VSYNC. This means that the falling edge of VSYNC signals the start of a frame, and its rising edge signals the end of a frame.
+
+That covers all the process of obtaining one frame, the remaining question is how fast are frames sent.
+By default, the PCLK will have the same frequency of XCLK, however prescalers and PPLs can be configured using the SCCB, to produce a PCLK of different frequency.
+
+A PCLK of 24 MHz will produce 30 fps, a PCLK of 12 MHz will produce 15 fps and so on.
+All this is independent of the format of the image (VGA, CIF, QCIF, etc).
+
 
 
 
