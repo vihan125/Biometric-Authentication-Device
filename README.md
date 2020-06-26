@@ -92,4 +92,35 @@ New implementation is available here : https://github.com/vihan125/Biometric-Aut
 
 to run the code run the make file in and execute the executable file, pixels data in hard coded at the present sitiuation, and the decoded pixel values are written to the 'results.txt' file.
 
+### WSQ compression of a 600x339 image
+
+Original image
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/2.PNG width="20%" height="20%">
+</p>
+
+Reconstructed image
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/3.PNG width="20%" height="20%">
+</p>
+
+
+### It is important to note that WSQ image compression technique will not work with images with low resolution
+
+For an example take a look at this compression of lena image with resolution 256x256
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/1.PNG width="20%" height="20%">
+</p>
+
+
+## OV7670 Camera module
+
+
+
+
+
+
+
 
