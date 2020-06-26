@@ -143,7 +143,7 @@ Meaning and the functions of the pins
 ### Functional Block diagram
 
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/block%20diagram.PNG width="30%" height="30%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/OV7670/block%20diagram.PNG width="100%" height="100%">
 </p>
 
 As you can see there are two clock inputs as XCLK and SIO_C. 
