@@ -97,13 +97,13 @@ to run the code run the make file in and execute the executable file, pixels dat
 Original image
 
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/2.PNG width="60%" height="60%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/2.PNG width="100%" height="100%">
 </p>
 
 Reconstructed image
 
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/3.PNG width="60%" height="60%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/3.PNG width="100%" height="100%">
 </p>
 
 
@@ -111,7 +111,7 @@ Reconstructed image
 
 For an example take a look at this compression of lena image with resolution 256x256
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/1.PNG width="60%" height="60%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/compressed_examples/1.PNG width="100%" height="100%">
 </p>
 
 
