@@ -188,6 +188,39 @@ By default, the PCLK will have the same frequency of XCLK, however prescalers an
 A PCLK of 24 MHz will produce 30 fps, a PCLK of 12 MHz will produce 15 fps and so on.
 All this is independent of the format of the image (VGA, CIF, QCIF, etc).
 
+However OV7670 clock speed is not campatible with raspberry pi GPIO pins. When we try to read pixel values what we get is only some pixel values of a frame here an there.
+Clock frequency is too much for GPIO pins.
+
+Then I try using OV7670 with an arduino board, and I was able to find two libraries as well,
+1. arducam library : Arducam library : https://github.com/ArduCAM/Arduino
+2. LiveOV7670 library : https://github.com/indrekluuk/LiveOV7670 
+
+But this solution causes some issues with the device
+1. Using a separate micro controller to just to take an image makes project more complex.
+2. Power consumption also high when using two MCUs for one device.
+3. Most of the libraries are focused on generating a video frame rather than capturing an image.
+4. OV7670 camera module has 201 registers for different purposes.
+5. OV7670 camera module has couple versions as one with a FIFO buffer another one without a FIFO buffer.
+6. Because of the high frame rate (30fps) most of the implementations are done with low resolution of 340x280.
+
+By considering all these factors I decided to move to another camera module which is compatible with raspberry pi.
+
+## Raspberry pi camera module
+
+This is the camera module that is build for using with raspberry pi. You just have to plug the camera in and can easily capture images with various resolutions and you can take video clips as well.
+Here is a link to get an idea about how to operate raspberry pi camera : https://projects.raspberrypi.org/en/projects/getting-started-with-picamera 
+
+This camera has a fixed focal length and you can capture clear images at a distance about 15cm, if you need to capture nearby objects you might have to use lens.
+here is a link shown how a microscope has built with use of raspberry pi camera and some lenses : https://www.raspberrypi.org/forums/viewtopic.php?f=43&t=210605&start=25#p1308543
+
+with the help of this camera i was able to capture very detailed image of my palm and after WSQ compression the rebuild image showed even more features.
+You can see the results in the images below,
+
+
+
+
+
+
 
 
 
