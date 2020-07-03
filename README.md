@@ -216,7 +216,17 @@ here is a link shown how a microscope has built with use of raspberry pi camera 
 with the help of this camera i was able to capture very detailed image of my palm and after WSQ compression the rebuild image showed even more features.
 You can see the results in the images below,
 
+* Image taken from raspberry pi camera module
 
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/rasp%20camera/images/3.PNG width="70%" height="70%">
+</p>
+
+* Image that was reconstructed after WSQ image compression
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/rasp%20camera/images/4.PNG width="70%" height="70%">
+</p>
 
 
 
