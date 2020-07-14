@@ -229,6 +229,69 @@ You can see the results in the images below,
 </p>
 
 
+# Final product
+
+With help of new raspberry pi camera module I was able to finalize my product.
+Biometric data was chnaged from fingerprint data to palm data because of the focusing issue of the raspberry pi camera module.
+
+## Reasones for changing from fingerprint data to palm data 
+
+* palm data is more secure than fingerprint and face data because palm data is hard to fake as its covered in most occasions
+* Hardware limitations due to COVID-19 pandamic situation.
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/01.PNG width="50%" height="50%">
+</p>
+
+## Color of light used to capture images
+
+When caprturing biometric data Green and Blue colour lights were used. As Blue and Green colour lights have a high frequency than other colours of light.
+Because of the high frequency light rays bounce back from the surface from the object where else other low frequency lights are absorbed into the object. That is the 
+reason why most natural object in the environment looks blue or green.
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/color%20spectrum.png width="80%" height="80%">
+</p>
+
+## Design 
+
+Because of these changes device was design in a way where device can be change according to the requirements. Device was considered as three sub components as 
+Camera, encoder and the transmitter. Flow chart of the Device is as follows.
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/flow%202.png width="80%" height="80%">
+</p>
+
+As shown in the above flow char there two common sources for the three sub components. The image taken by the camera is fed into the encoder and ecoder takes image as an
+input and write decoded data into a text file. This text file is taken into the transmitter and transmit the data into the backend server. These subcomponents can be chnaged 
+according to the requirements and it should take inputs according to the above flow chat and output the desired output. Lets say we want to change this device to a fingerprint detecting device what we have to do is
+replace the camera module with a suitable camera and feed the out image to the encoder.
+
+When consider about the class diagram, there are three interfaces that are given to the three sub components and if we replace a device it should implement the repective methods stated in the interface which will be used in the main class.
+Class Diagram is shown below,
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/class%20diagram.png width="80%" height="80%">
+</p>
+
+## Output
+
+With the limited resorces available I was able to build a small device, Using a cardboard box and some LEDs.
+There are three LEDs in the device as green, blue and yellow,
+* Green - will glow to indicate the initialization of the device
+* Blue - will glow to indicate when a image of the biometric data is captured
+* Yellow - will glow when encoded data is transmitted to the backend
+
+<p align="left">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/device%201.jpeg width="30%" height="30%">
+</p>
+
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/device%202.jpeg width="30%" height="30%">
+</p>
+
+<p align="right">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/light.jpeg width="30%" height="30%">
+</p>
+
 
 
 
