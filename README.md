@@ -280,16 +280,16 @@ There are three LEDs in the device as green, blue and yellow,
 * Blue - will glow to indicate when a image of the biometric data is captured
 * Yellow - will glow when encoded data is transmitted to the backend
 
-<p align="left">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/device%201.jpeg width="30%" height="30%">
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/device%201.jpeg width="50%" height="50%">
 </p>
 
 <p align="center">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/device%202.jpeg width="30%" height="30%">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/device%202.jpeg width="50%" height="50%">
 </p>
 
-<p align="right">
-  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/light.jpeg width="30%" height="30%">
+<p align="center">
+  <image src = https://github.com/vihan125/Biometric-Authentication-Device/blob/master/images/read%20me%20images/light.jpeg width="50%" height="50%">
 </p>
 
 
