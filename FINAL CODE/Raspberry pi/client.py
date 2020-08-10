@@ -1,8 +1,17 @@
+from abc import ABC, abstractmethod
 import socket
 
-class Client:
+
+class Abstract_client(ABC):
+
+    @abstractmethod
+    def transfer(self):
+        pass
     
-    def transfer():
+class Ethernet_Client(Abstract_client):
+    
+    def transfer(self):
+        
         HEADERSIZE = 10
 
         s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
